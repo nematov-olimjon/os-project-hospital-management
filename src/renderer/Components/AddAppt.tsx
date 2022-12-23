@@ -7,6 +7,9 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
+import {name, role} from './SignUp'
+import {LoginName, LoginRole} from './Login';
+import { LINK } from './../App'
 
 import 'react-datepicker/dist/react-datepicker.css';
 import App from 'renderer/App';
@@ -14,11 +17,11 @@ import App from 'renderer/App';
 import Menu from '../Components/Menu';
 
 let doctor_name;
-let name;
 let time: number;
 let dateToday = new Date();
 let PickDate = new Date();
 let notOverlap = false;
+let date;
 
 interface AddApptProps {
   name?: any;
@@ -33,6 +36,7 @@ interface AddApptState {
   date: Date;
   time: string;
   notOverlap: boolean;
+  chosenDate: string;
 }
 
 export class AddAppt extends React.Component<AddApptProps, AddApptState> {
@@ -55,7 +59,6 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
   ];
   handleName = (e) => {
     e.preventDefault();
-    name = e.target.value;
   };
 
   handleDoctorName = (e) => {
@@ -65,8 +68,7 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
 
   handleDate = (e) => {
     e.preventDefault();
-    PickDate = e.target.value;
-    console.log('dfsf');
+    date = e.target.value;
   };
 
   handleTime = (e) => {
@@ -91,6 +93,7 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
       day: '',
       time: '',
       notOverlap: false,
+      chosenDate: dateToday.getDate() + '/' + dateToday.getMonth() + '/' + dateToday.getDate
     };
     this.state = initialState;
     this.handleClick = this.handleClick.bind(this);
@@ -102,6 +105,10 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
     this.setState({ ...this.state, notOverlap: condition });
   }
 
+  handleChosenDate(dateString: string) {
+    this.setState({ ...this.state, chosenDate: dateString });
+  }
+
   isWeekday = (date) => {
     const day = date.getDay();
     return day !== 0 && day !== 6;
@@ -110,22 +117,32 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
   add = () => {
     const axios = require('axios');
     const res = axios
-      .post('https://0419-84-54-80-227.eu.ngrok.io/request', {
-        request: `make_appointment;${name};${doctor_name};${PickDate.getFullYear()};${
-          PickDate.getMonth() + 1
-        };${PickDate.getDate() + 1};${this.times[time].slice(0, 2)};${
-          time >= this.times.length - 1 ? '18' : this.times[time + 1].slice(0, 2)
-        }`,
+      .post(LINK, {
+        request: `make_appointment;${name || LoginName};${doctor_name};${date.slice(6,10)};${date.slice(3,5)};${date.slice(0,2)};${this.times[time].slice(0, 2)};${time >= this.times.length - 1 ? '18': this.times[time + 1].slice(0, 2)}`,
       })
       .then((response) => {
         if (response.data === 'NOT OVERLAPS') {
           this.handleClick(true);
           console.log(response.data);
-        }
-        if (response.data === 'NO SUCH DOCTOR NAME') {
+        } else if (response.data === 'NO SUCH DOCTOR NAME') {
           console.log(response.data);
-          const root =  ReactDOM.createRoot(document.querySelector(".add"));
-          const elem = <div>{this.render()}<p style={{color: "red"}}>No Such Doctor Name</p></div>
+          const root = ReactDOM.createRoot(document.querySelector('.add'));
+          const elem = (
+            <div>
+              {this.render()}
+              <p style={{ color: 'red' }}>No Such Doctor Name</p>
+            </div>
+          );
+          root.render(elem);
+        } else {
+          console.log(response.data);
+          const root = ReactDOM.createRoot(document.querySelector('.add'));
+          const elem = (
+            <div>
+              {this.render()}
+              <p style={{ color: 'red' }}>Time Overlaps</p>
+            </div>
+          );
           root.render(elem);
         }
       });
@@ -133,6 +150,7 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
 
   render() {
     const { notOverlap } = this.state;
+    const { chosenDate } = this.state;
     if (!notOverlap) {
       return (
         <div className="add">
@@ -155,24 +173,32 @@ export class AddAppt extends React.Component<AddApptProps, AddApptState> {
               <input
                 type="text"
                 name="fullName"
-                onChange={this.handleName}
                 className="name"
+                value={name || LoginName}
+                disabled = {true}
               />
             </div>
             <div className="date">
               <span className="label">Choose Date</span>
               <br />
-              <DatePicker
+              {/* <DatePicker
                 minDate={dateToday}
                 filterDate={this.isWeekday}
                 dateFormat="MM/dd/yyyy"
                 selected={this.state.date}
                 onChange={(daate: Date) => {
+                  this.setState({ ...this.state, date: daate });
                   PickDate = this.state.date;
                   console.log(PickDate.toString());
-                  this.setState({ ...this.state, date: daate });
                 }}
                 value={this.state.date}
+              /> */}
+              <input
+                type="text"
+                name="date"
+                onChange={this.handleDate}
+                className="name"
+                placeholder='dd/MM/yyyy'
               />
             </div>
             <div className="time">

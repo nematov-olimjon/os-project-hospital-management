@@ -3,13 +3,10 @@ import { Select } from '@mui/material';
 import { MenuItem } from '@mui/material';
 import axios from 'axios';
 import Main from './Main';
+import { LINK } from './../App'
 
-const Validator = () => {
-  const [isLogin, setLogin] = useState(false);
-};
-
-let role;
-let name;
+export let LoginRole;
+export let LoginName;
 let password;
 
 const Regex = RegExp(
@@ -67,12 +64,12 @@ export class Login extends React.Component<LoginProps, LoginState> {
 
   handleValue = (e) => {
     e.preventDefault();
-    role = e.target.value;
+    LoginRole = e.target.value;
   };
 
   handleName = (e) => {
     e.preventDefault();
-    name = e.target.value;
+    LoginName = e.target.value;
   };
 
   handlePass = (e) => {
@@ -102,11 +99,23 @@ export class Login extends React.Component<LoginProps, LoginState> {
     this.setState({ ...this.state, isLogin: condition });
   }
 
+  chooseRole(role: string) {
+    if (LoginRole === 1) {
+      return 'patient';
+    }
+    if (LoginRole === 2) {
+      return 'doctor';
+    }
+    if (LoginRole === 3) {
+      return 'admin';
+    }
+  }
+
   register = () => {
     const axios = require('axios');
     const res = axios
-      .post('https://0419-84-54-80-227.eu.ngrok.io/request', {
-        request: `sign_in_${role === 1 ? "patient" : "doctor"};${name};${password}`,
+      .post(LINK, {
+        request: `sign_in_${this.chooseRole(LoginRole)};${LoginName};${password}`,
       })
       .then((response) => {
         if (response.data === 'MATCH') {
@@ -138,6 +147,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                 >
                   <MenuItem value={1}>Patient</MenuItem>
                   <MenuItem value={2}>Doctor</MenuItem>
+                  <MenuItem value={3}>Admin</MenuItem>
                 </Select>
               </div>
               <div className="email">

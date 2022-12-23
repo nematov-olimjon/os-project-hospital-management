@@ -10,7 +10,9 @@ import 'react-calendar/dist/Calendar.css';
 import './App.css';
 import axios from 'axios';
 
-const Hello = () => {
+export let LINK = 'http://192.168.21.39:5000/request';
+
+const Hello = (props) => {
   const [page, setPage] = React.useState(false);
   function handleClick(state: boolean) {
     setPage(state);
@@ -32,7 +34,7 @@ const Hello = () => {
           </button>
         </div>
       </div>
-      {page === true ? <SignUp name={name}/> : <Login />}
+      {page === true ? <SignUp/> : <Login />}
     </div>
   );
 };

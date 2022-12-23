@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
-import { Select } from '@mui/material';
-import { MenuItem } from '@mui/material';
 import axios from 'axios';
 import Main from './Main';
 import { LINK } from './../App'
 import '../../config';
 
-export let role;
-export let name;
+let name;
 let email;
 let tel;
 let password;
-let isSignUp = false;
+let category;
+let location;
+let isAddDoctor = false;
 
 
 const Regex = RegExp(
   /^\s?[A-Z0–9]+[A-Z0–9._+-]{0,}@[A-Z0–9._+-]+\.[A-Z0–9]{2,4}\s?$/i
 );
 
-interface SignUpProps {
+interface AddDoctorProps {
   name?: any;
   role?: any;
 }
-interface SignUpState {
+interface AddDoctorState {
   username: string;
   email: string;
   password: string;
@@ -31,10 +30,10 @@ interface SignUpState {
     email: string;
     password: string;
   };
-  isSignUp: boolean;
+  isAddDoctor: boolean;
 }
 
-export class SignUp extends React.Component<SignUpProps, SignUpState> {
+export class AddDoctor extends React.Component<AddDoctorProps, AddDoctorState> {
   handleChange = (event: any) => {
     event.preventDefault();
     const { name, value } = event.target;
@@ -70,11 +69,6 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
     }
   };
 
-  handleValue = (e) => {
-    e.preventDefault();
-    role = e.target.value;
-  };
-
   handleName = (e) => {
     e.preventDefault();
     name = e.target.value;
@@ -93,7 +87,17 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
     tel = e.target.value;
   };
 
-  constructor(props: SignUpProps) {
+  handleCateg = (e) => {
+    e.preventDefault();
+    category = e.target.value;
+  };
+
+  handleLoc = (e) => {
+    e.preventDefault();
+    location = e.target.value;
+  };
+
+  constructor(props: AddDoctorProps) {
     super(props);
     const initialState = {
       username: '',
@@ -104,7 +108,7 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
         email: '',
         password: '',
       },
-      isSignUp: false,
+      isAddDoctor: false,
     };
     this.state = initialState;
     this.handleChange = this.handleChange.bind(this);
@@ -112,45 +116,33 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
   }
 
   handleClick(condition: boolean) {
-    this.setState({ ...this.state, isSignUp: condition });
+    this.setState({ ...this.state, isAddDoctor: condition });
   }
 
   register = () => {
     const axios = require('axios');
     const res = axios
       .post(LINK, {
-        request: `sign_up_patient;${name};${password};${tel};${email}`,
+        request: `sign_up_doctor;${name};${password};${tel};${email};${category};${location}`,
       })
       .then((response) => {
         if (response.data === 'OK') {
-            this.handleClick(true);
+          this.handleClick(true);
           console.log(response.data);
-          console.log(role)
         }
       });
   };
 
   render() {
     const { errors } = this.state;
-    const { isSignUp } = this.state;
+    const { isAddDoctor } = this.state;
 
-    if (!isSignUp) {
+    if (!isAddDoctor) {
       return (
         <div className="wrapper">
           <div className="form-wrapper">
             <h2>Sign Up</h2>
             <form onSubmit={this.handleSubmit} noValidate>
-              <div className="role">
-                <label htmlFor="role">Choose your role</label>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Age"
-                  onChange={this.handleValue}
-                >
-                  <MenuItem value={1}>Patient</MenuItem>
-                </Select>
-              </div>
               <div className="fullName">
                 <label htmlFor="fullName">Full Name</label>
                 <input
@@ -161,6 +153,26 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
                 />
                 {errors.username.length > 0 && (
                   <span style={{ color: 'red' }}>{errors.username}</span>
+                )}
+              </div>
+              <div className="telPhone">
+                <label htmlFor="telPhone">Specialty</label>
+                <input
+                  type="text"
+                  name="specialty"
+                  onChange={this.handleCateg}
+                  className="tel"
+                />
+              </div>
+              <div className="password">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  onChange={this.handlePass}
+                />
+                {errors.password.length > 0 && (
+                  <span style={{ color: 'red' }}>{errors.password}</span>
                 )}
               </div>
               <div className="telPhone">
@@ -181,19 +193,17 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
                   className="email"
                 />
               </div>
-              <div className="password">
-                <label htmlFor="password">Password</label>
+              <div className="emailAddr">
+                <label htmlFor="emailAddr">Location</label>
                 <input
-                  type="password"
-                  name="password"
-                  onChange={this.handlePass}
+                  type="text"
+                  name="location"
+                  onChange={this.handleLoc}
+                  className="email"
                 />
-                {errors.password.length > 0 && (
-                  <span style={{ color: 'red' }}>{errors.password}</span>
-                )}
               </div>
               <div className="submit">
-                <button onClick={this.register}>Register Me</button>
+                <button onClick={this.register}>Add Doctor</button>
               </div>
             </form>
           </div>
@@ -205,4 +215,4 @@ export class SignUp extends React.Component<SignUpProps, SignUpState> {
   }
 }
 
-export default isSignUp;
+export default AddDoctor;
